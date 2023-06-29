@@ -1,0 +1,19 @@
+.transparent-table{
+    background-color: transparent;
+    /* opacity: 50%; */
+}
+
+.transparent-table thead th,
+.transparent-table tbody td {
+  background-color: rgba(255, 255, 255, 0.5);
+  opacity: 0.8; 
+}
+
+.transparent-table thead th {
+  color: rgb(252, 249, 249); 
+}
+
+.transparent-table tbody td {
+  color: rgb(79, 41, 41); 
+}
+
