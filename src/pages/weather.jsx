@@ -1,18 +1,18 @@
 import './weather.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.min.js';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-const API_KEY = '48960783096f4d6fa05100531232806';
-
 const Weather = () => {
+  const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
   const [forecast, setForecast] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState('Select Country');
+  const cityRef = useRef('Paliyad');
 
-  const cityRef = useRef('Ahmedabad');
 
+  console.log("re-render", forecast);
+  console.log("re-", );
  
+  
   const fetchForecast = async () => {
     try {
       const response = await fetch(
@@ -20,14 +20,16 @@ const Weather = () => {
       );
       const data = await response.json();
       setForecast(data.forecast);
+      console.log('data', data);
     } catch (error) {
-      console.error('Error fetch in  forecast:', error);
+      console.error('Error fetching forecast:', error);
     }
   };
+useEffect(() => {
 
-  useEffect(() => {
-    fetchForecast();
-  }, []);
+  fetchForecast();
+}, []);
+
 
 
   const formattedForecast = useMemo(() => {
@@ -41,6 +43,7 @@ const Weather = () => {
         maxTemp: day.day.maxtemp_c,
         minTemp: day.day.mintemp_c,
         condition: day.day.condition.text,
+        rain:day.day.daily_chance_of_rain
       }));
     }
     return [];
@@ -52,10 +55,11 @@ const Weather = () => {
   };
 
   return (
-      <div className='container '>
-   
-        <h1 className='text-center mt-2' style={{color:"white"}}>Weatherly Forecast</h1>
-        <div className="dropdown d-flex justify-content-center">
+      <div className='container'>   
+        <h1 className='text-center mt-2' >Weatherly Forecast</h1>
+        <div className="dropdown d-flex justify-content-around">
+        {formattedForecast.length > 0  && formattedForecast[0].sunset && (
+          <h4 >Sunrise: {formattedForecast[0].sunrise}</h4>)}
           <button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
             {selectedCountry}
           </button>
@@ -66,24 +70,27 @@ const Weather = () => {
             <li><button className="dropdown-item" onClick={() => handleCountryChange('Tokyo')}>Tokyo</button></li>
             <li><button className="dropdown-item" onClick={() => handleCountryChange('Ahmedabad')}>Ahmedabad</button></li>
           </ul>
-          </div>
+          {formattedForecast.length > 0 && formattedForecast[0].sunrise  && (
+           <h4 >Sunset: {formattedForecast[0].sunset}</h4>)}
+        </div>
 
-      <div className='d-flex justify-content-center align-items-center vh-100'>
-        <div>
-      <h1 className='text-center mb-4 ' style={{color:'white'}}>{cityRef.current}</h1> 
-    
 
       {formattedForecast.length === 0 ? (
         <p>Loading...</p>
       ) : (
-        <table className='table table-bordered table-responsive table-hover text-center  transparent-table'>
+      <div className='d-flex  justify-content-center align-items-center'>
+        <div>
+      <h1 className='text-center mb-4 '>{cityRef.current.toLocaleUpperCase()}</h1> 
+    <div className='table-responsive'>
+      <table className='table table-bordered table-hover text-center transparent-table'>
           <thead> 
-            <tr  style={{color:"white"}}>
+            <tr >
               <th>Date</th>
               <th>Max Temp (°C)</th>
               <th>Min Temp (°C)</th>
               <th>Humidity</th>
               <th>perception </th>
+              <th>Rain</th>
               <th>Condition</th>
             </tr>
           </thead>
@@ -95,15 +102,19 @@ const Weather = () => {
                 <td>{day.minTemp}°C</td>
                 <td> {day.humidity}</td>
                 <td>{day.perception}</td>
+                <td>{day.rain}</td>
                 <td>{day.condition}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
+        </div>
+</div>
+
       )}
     </div>
-    </div>
-     </div>
+    
 
   );
 };

@@ -1,11 +1,13 @@
-// import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
 import Weather from './pages/weather';
+// import Weatherly from './pages/wetherly';
 
 function App() {
   return (
+    <>
    <Weather/>
+   {/* <Weatherly/> */}
+    </>
+   
   );
 }
 
