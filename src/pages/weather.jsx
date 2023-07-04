@@ -1,6 +1,12 @@
 import './weather.css';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { Button } from 'react-bootstrap';
+import InfoDialogBox from './components/DialogBox';
+import WeatherTable from './components/Table';
 
 const Weather = () => {
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
@@ -8,7 +14,25 @@ const Weather = () => {
   const [selectedCountry, setSelectedCountry] = useState('Select Country');
   const cityRef = useRef('Paliyad');
 
+const dispatch = useDispatch();
+const location = useLocation();
+// const history = useHistory();
+const navigate = useNavigate();
+const weatherInfo = useSelector((state)=>state.data);
 
+console.log(weatherInfo,"weatherRE");
+  const [showDialog, setShowDialog] = useState(false);
+  const [selectedData, setSelectedData] = useState(null);
+
+  const handleOpenDialog = (data) => {
+    setSelectedData(data);
+    setShowDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setShowDialog(false);
+  };
+  
   console.log("re-render", forecast);
   console.log("re-", );
  
@@ -19,47 +43,54 @@ const Weather = () => {
         `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${cityRef.current}&days=14`
       );
       const data = await response.json();
-      setForecast(data.forecast);
-      console.log('data', data);
+      setForecast(data.forecast.forecastday);
+      console.log('data', data.forecast.forecastday);
     } catch (error) {
       console.error('Error fetching forecast:', error);
     }
   };
-useEffect(() => {
 
-  fetchForecast();
-}, []);
-
-
-
-  const formattedForecast = useMemo(() => {
-    if (forecast) {
-      return forecast.forecastday.map(day => ({
-        date: day.date,
-        sunrise:day.astro.sunrise,
-        sunset: day.astro.sunset,
-        humidity:day.day.avghumidity,
-        perception:day.day.totalprecip_mm,
-        maxTemp: day.day.maxtemp_c,
-        minTemp: day.day.mintemp_c,
-        condition: day.day.condition.text,
-        rain:day.day.daily_chance_of_rain
-      }));
+  useEffect(() => {
+    if (location.pathname === '/saved') {
+      if (weatherInfo) {
+        setForecast(weatherInfo);
+      } else {
+        // Fetch data from API since the Redux store is empty
+        fetchForecast();
+      }
+    } else {
+      fetchForecast();
     }
-    return [];
-  }, [forecast]);
+  }, [dispatch, location.pathname, weatherInfo]);
+
+
   const handleCountryChange = (country) => {
     cityRef.current = country;
     fetchForecast();
     setSelectedCountry(country);
   };
 
+  const head = [ "",
+  "Date",
+  "Max Temp (°C)",
+  "Min Temp (°C)",
+  "Humidity",
+  "Perception",
+  "Rain",
+  "Condition"        
+];
+
+const getDataTable = () =>{
+  navigate('/saved');
+// history.push('/saved');
+}
   return (
       <div className='container'>   
         <h1 className='text-center mt-2' >Weatherly Forecast</h1>
+        <Button onClick={getDataTable}>Saved</Button>
         <div className="dropdown d-flex justify-content-around">
-        {formattedForecast.length > 0  && formattedForecast[0].sunset && (
-          <h4 >Sunrise: {formattedForecast[0].sunrise}</h4>)}
+        {/* {formattedForecast.length > 0  && formattedForecast[0].sunset && (
+          <h4 >Sunrise: {formattedForecast[0].sunrise}</h4>)} */}
           <button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
             {selectedCountry}
           </button>
@@ -70,49 +101,32 @@ useEffect(() => {
             <li><button className="dropdown-item" onClick={() => handleCountryChange('Tokyo')}>Tokyo</button></li>
             <li><button className="dropdown-item" onClick={() => handleCountryChange('Ahmedabad')}>Ahmedabad</button></li>
           </ul>
-          {formattedForecast.length > 0 && formattedForecast[0].sunrise  && (
-           <h4 >Sunset: {formattedForecast[0].sunset}</h4>)}
+          {/* {formattedForecast.length > 0 && formattedForecast[0].sunrise  && (
+           <h4 >Sunset: {formattedForecast[0].sunset}</h4>)} */}
         </div>
 
 
-      {formattedForecast.length === 0 ? (
+      {forecast === null ? (
         <p>Loading...</p>
-      ) : (
+      ) : forecast.length === 0 ? (
+        <p>No data available</p>
+      ) :(
       <div className='d-flex  justify-content-center align-items-center'>
         <div>
       <h1 className='text-center mb-4 '>{cityRef.current.toLocaleUpperCase()}</h1> 
-    <div className='table-responsive'>
-      <table className='table table-bordered table-hover text-center transparent-table'>
-          <thead> 
-            <tr >
-              <th>Date</th>
-              <th>Max Temp (°C)</th>
-              <th>Min Temp (°C)</th>
-              <th>Humidity</th>
-              <th>perception </th>
-              <th>Rain</th>
-              <th>Condition</th>
-            </tr>
-          </thead>
-          <tbody>
-            {formattedForecast.map((day, index) => (
-              <tr key={index}>
-                <td>{day.date}</td>
-                <td>{day.maxTemp}°C</td>
-                <td>{day.minTemp}°C</td>
-                <td> {day.humidity}</td>
-                <td>{day.perception}</td>
-                <td>{day.rain}</td>
-                <td>{day.condition}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className='table-responsive'>
+        {Array.isArray(forecast) && forecast.length > 0 ? (
+          <WeatherTable forecastData={forecast} onOpenDialog={handleOpenDialog} heading={head} />
+        ) : (
+          <p>No data available</p>
+        )}
+      </div>
         </div>
-        </div>
-</div>
+    </div>
 
       )}
+
+    <InfoDialogBox show={showDialog} handleClose={handleCloseDialog} data={selectedData} />
     </div>
     
 

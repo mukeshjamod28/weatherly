@@ -23,61 +23,14 @@
 
 @media screen and (max-width: 716px){
 .table-responsive{
-  overflow-x: scroll;
+  overflow-x: auto;
+  
   width: 90vw;
-  /* border: none; */
-  /* display: none; */
-    /* padding: 1.5rem;
-    margin-right: 0;
-    margin-left: 0;
-    border-width: 1px;
-    border-top-left-radius: 0.25rem;
-    border-top-right-radius: 0.25rem; */
+ 
 }
 
 }
-/* @media screen and (max-width: 600px) {
-  .responsive-table {
-    overflow-x: auto;
-    display: block;
-  }
 
-  .responsive-table thead,
-  .responsive-table tbody,
-  .responsive-table th,
-  .responsive-table td,
-  .responsive-table tr {
-    display: block;
-  }
-
-  .responsive-table thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-
-  .responsive-table tr {
-    border: 1px solid #ccc;
-  }
-
-  .responsive-table td {
-    border: none;
-    border-bottom: 1px solid #ccc;
-    position: relative;
-    padding-left: 50%;
-  } */
-
-  /* .responsive-table td:before {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 45%;
-    padding-right: 10px;
-    white-space: nowrap;
-    content: attr(data-title);
-    font-weight: bold;
-  } */
-/* } */
 
 
   
