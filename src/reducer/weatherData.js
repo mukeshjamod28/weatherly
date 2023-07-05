@@ -1,7 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-let nextId = 1;
-
 const initialState = {
   weather: [],
 };
@@ -12,10 +10,15 @@ const dataSlice = createSlice({
   reducers: {
     saveData: (state, action) => {
       const newData = {
-        id: nextId++,
+        date_epoch: action.payload.date_epoch,
         data: action.payload,
       };
-      state.weather.push(newData);
+      const existingDataIndex = state.weather.findIndex((item) => item.date_epoch === newData.date_epoch);
+      if (existingDataIndex !== -1) {
+        state.weather[existingDataIndex] = newData;
+      } else {
+        state.weather.push(newData);
+      }
     },
   },
 });

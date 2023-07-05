@@ -1,31 +1,32 @@
 import './weather.css';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 
 import { Button } from 'react-bootstrap';
 import InfoDialogBox from './components/DialogBox';
 import WeatherTable from './components/Table';
+import { useSelector } from 'react-redux';
 
 const Weather = () => {
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
   const [forecast, setForecast] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState('Select Country');
   const cityRef = useRef('Paliyad');
-
-const dispatch = useDispatch();
-const location = useLocation();
-// const history = useHistory();
-const navigate = useNavigate();
-const weatherInfo = useSelector((state)=>state.data);
-
-console.log(weatherInfo,"weatherRE");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const weatherInfo = useSelector((state)=>state.data.weather);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
 
-  const handleOpenDialog = (data) => {
-    setSelectedData(data);
+  const handleOpenDialog = (forecast) => {
+    if (location.pathname === '/saved'){
+      
+      setSelectedData(forecast.data);
+    }
+    else{
+      setSelectedData(forecast)
+    }
     setShowDialog(true);
   };
 
@@ -34,8 +35,7 @@ console.log(weatherInfo,"weatherRE");
   };
   
   console.log("re-render", forecast);
-  console.log("re-", );
- 
+  console.log("re" , selectedData); 
   
   const fetchForecast = async () => {
     try {
@@ -52,17 +52,15 @@ console.log(weatherInfo,"weatherRE");
 
   useEffect(() => {
     if (location.pathname === '/saved') {
-      if (weatherInfo) {
+      if (weatherInfo) {     
         setForecast(weatherInfo);
-      } else {
-        // Fetch data from API since the Redux store is empty
+      } else {    
         fetchForecast();
       }
     } else {
       fetchForecast();
     }
-  }, [dispatch, location.pathname, weatherInfo]);
-
+  }, [ location.pathname, weatherInfo]);
 
   const handleCountryChange = (country) => {
     cityRef.current = country;
@@ -82,8 +80,8 @@ console.log(weatherInfo,"weatherRE");
 
 const getDataTable = () =>{
   navigate('/saved');
-// history.push('/saved');
-}
+};
+
   return (
       <div className='container'>   
         <h1 className='text-center mt-2' >Weatherly Forecast</h1>
@@ -91,7 +89,7 @@ const getDataTable = () =>{
         <div className="dropdown d-flex justify-content-around">
         {/* {formattedForecast.length > 0  && formattedForecast[0].sunset && (
           <h4 >Sunrise: {formattedForecast[0].sunrise}</h4>)} */}
-          <button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" disabled={location.pathname === '/saved'}>
             {selectedCountry}
           </button>
           <ul className="dropdown-menu">
@@ -108,28 +106,18 @@ const getDataTable = () =>{
 
       {forecast === null ? (
         <p>Loading...</p>
-      ) : forecast.length === 0 ? (
-        <p>No data available</p>
-      ) :(
+      )  :(
       <div className='d-flex  justify-content-center align-items-center'>
         <div>
       <h1 className='text-center mb-4 '>{cityRef.current.toLocaleUpperCase()}</h1> 
       <div className='table-responsive'>
-        {Array.isArray(forecast) && forecast.length > 0 ? (
-          <WeatherTable forecastData={forecast} onOpenDialog={handleOpenDialog} heading={head} />
-        ) : (
-          <p>No data available</p>
-        )}
+          <WeatherTable forecastData={forecast} onOpenDialog={handleOpenDialog} heading={head} />        
       </div>
         </div>
     </div>
-
       )}
-
-    <InfoDialogBox show={showDialog} handleClose={handleCloseDialog} data={selectedData} />
+    <InfoDialogBox show={showDialog} handleClose={handleCloseDialog} data={selectedData} path={window.location.pathname} />
     </div>
-    
-
   );
 };
 
