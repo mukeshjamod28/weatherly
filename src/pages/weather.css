@@ -3,9 +3,6 @@
     /* overflow: auto; */
     /* opacity: 50%; */
 }
-
-
-
 .transparent-table thead th,
 .transparent-table tbody td {
   background-color: rgba(255, 255, 255, 0.5);
@@ -20,10 +17,9 @@
   color: rgb(79, 41, 41); 
 }
 
-
 @media screen and (max-width: 716px){
 .table-responsive{
-  overflow-x: scroll;
+  overflow-x: auto;
   width: 90vw;
   /* border: none; */
   /* display: none; */
