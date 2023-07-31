@@ -15,8 +15,8 @@
 body {
   background-image: url("images/LSzq.gif");
   background-repeat: no-repeat;
-  background-size: cover;
-  object-fit:contain;
+  background-attachment: fixed;
+  background-size: 100% 100%;
 }
 
 
